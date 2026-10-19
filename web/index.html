@@ -1,157 +1,193 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mini SQL Compiler — Interactive IDE & AST Explorer</title>
+  <title>Mini SQL Compiler — Interactive Studio</title>
   <link rel="stylesheet" href="/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="app-container">
-    <!-- Top Navigation Header -->
-    <header class="app-header">
-      <div class="header-left">
-        <div class="logo-icon">⚡</div>
-        <div class="logo-text">
-          <h1>Mini SQL Compiler</h1>
-          <span class="badge-academic">3rd Year CSE • Compiler Design Mini-Project</span>
+  <div class="app-shell">
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="nav-brand">
+        <div class="brand-badge">SQL</div>
+        <div class="brand-meta">
+          <span class="brand-title">Mini SQL Compiler</span>
+          <span class="brand-subtitle">Compiler Design Front-End Engine</span>
         </div>
       </div>
-      <div class="header-right">
-        <div class="status-pill status-ready" id="statusPill">
-          <span class="dot"></span>
-          <span id="statusText">Ready</span>
+
+      <div class="nav-controls">
+        <div class="compiler-badge ready" id="compilerStatusPill">
+          <span class="status-indicator"></span>
+          <span id="compilerStatusText">Ready</span>
         </div>
-        <button class="btn btn-outline" id="btnToggleSchema">📊 Schema Catalog</button>
+
+        <button class="icon-btn" id="btnThemeToggle" title="Toggle Light / Dark Theme" aria-label="Toggle Theme">
+          <span class="theme-icon-sun">☀️</span>
+          <span class="theme-icon-moon">🌙</span>
+        </button>
+
+        <button class="btn btn-subtle" id="btnOpenSchema">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+          Schema
+        </button>
+
+        <button class="btn btn-subtle" id="btnOpenTeam">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Team
+        </button>
       </div>
     </header>
 
-    <!-- Main Workspace Grid -->
-    <main class="workspace-grid">
-      <!-- Left Column: SQL Editor -->
-      <section class="editor-pane">
-        <div class="pane-header">
-          <div class="pane-title">
-            <span class="pane-icon">📝</span>
-            <h2>SQL Source Query</h2>
+    <!-- Main Workspace Split Pane -->
+    <main class="workspace-layout">
+      <!-- Left: Code Editor & Quick Query Chips -->
+      <section class="pane pane-editor">
+        <div class="pane-bar">
+          <div class="pane-heading">
+            <span class="dot-accent"></span>
+            <span>Query Editor</span>
           </div>
-          <div class="preset-selector-wrap">
-            <label for="queryPresets">Sample Queries:</label>
-            <select id="queryPresets" class="dropdown">
-              <option value="select_basic">1. Basic SELECT & FROM</option>
-              <option value="select_wildcard">2. Wildcard Projection (*)</option>
-              <option value="where_compound">3. Compound WHERE (AND / OR)</option>
-              <option value="order_by_desc">4. Sorted (ORDER BY ... DESC)</option>
-              <option value="full_pipeline" selected>5. Full Pipeline (WHERE + ORDER BY)</option>
-              <option value="err_syntax_clause">⚠️ Error: Clause Out of Order</option>
-              <option value="err_syntax_comma">⚠️ Error: Trailing Comma</option>
-              <option value="err_semantic_table">⚠️ Error: Unknown Table</option>
-              <option value="err_semantic_type">⚠️ Error: Type Mismatch</option>
-              <option value="err_lexical_char">⚠️ Error: Illegal Character (@)</option>
-            </select>
+
+          <div class="editor-header-actions">
+            <button class="btn-text" id="btnCopyQuery" title="Copy SQL Query">Copy</button>
+            <button class="btn-text" id="btnClearEditor" title="Clear Editor">Clear</button>
           </div>
         </div>
 
-        <div class="editor-container">
-          <textarea id="sqlInput" spellcheck="false" placeholder="Enter your restricted SQL query here (e.g. SELECT name, age FROM students WHERE age >= 18;)">SELECT name, age FROM students WHERE age >= 18 AND gpa > 3.0 ORDER BY name ASC;</textarea>
-        </div>
-
-        <div class="editor-footer">
-          <span class="shortcut-tip">Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to compile</span>
-          <div class="editor-actions">
-            <button class="btn btn-secondary" id="btnClear">Clear</button>
-            <button class="btn btn-primary" id="btnCompile">
-              <span>⚡ Compile & Analyze</span>
-            </button>
+        <!-- Quick Query Presets Bar -->
+        <div class="presets-chip-bar">
+          <span class="chip-label">Quick Samples:</span>
+          <div class="chips-scroll">
+            <button class="chip active" data-preset="full_pipeline">Full Pipeline</button>
+            <button class="chip" data-preset="select_basic">Basic SELECT</button>
+            <button class="chip" data-preset="select_wildcard">Wildcard *</button>
+            <button class="chip" data-preset="where_compound">WHERE (AND/OR)</button>
+            <button class="chip" data-preset="order_by_desc">ORDER BY DESC</button>
+            <button class="chip chip-error" data-preset="err_syntax_comma">Syntax Error</button>
+            <button class="chip chip-error" data-preset="err_semantic_type">Type Error</button>
           </div>
         </div>
 
-        <!-- Diagnostic Alert Banner -->
-        <div class="diagnostic-banner hidden" id="diagnosticBanner">
-          <div class="diag-header">
-            <span class="diag-icon" id="diagIcon">⚠️</span>
-            <strong id="diagTitle">Compilation Error</strong>
-            <span class="diag-stage" id="diagStage">Syntax Analysis</span>
+        <div class="editor-wrapper">
+          <div class="line-gutter" id="lineGutter">1</div>
+          <textarea id="sqlInput" spellcheck="false" placeholder="Type your SQL query here... (e.g. SELECT name, age FROM students WHERE age >= 18;)">SELECT name, age FROM students WHERE age >= 18 AND gpa > 3.0 ORDER BY name ASC;</textarea>
+        </div>
+
+        <!-- Diagnostic Error Panel -->
+        <div class="alert-box alert-error hidden" id="diagnosticAlert">
+          <div class="alert-indicator"></div>
+          <div class="alert-body">
+            <div class="alert-meta">
+              <span class="alert-badge" id="alertStage">Syntax Error</span>
+              <span class="alert-coords" id="alertCoords">Line 1, Col 1</span>
+            </div>
+            <p class="alert-text" id="alertMessage">Diagnostic message will appear here.</p>
           </div>
-          <p class="diag-message" id="diagMessage"></p>
+        </div>
+
+        <!-- Editor Bottom Control Bar -->
+        <div class="pane-action-bar">
+          <div class="keybind-hint">
+            <span>Shortcut:</span> <kbd>Ctrl</kbd> + <kbd>Enter</kbd>
+          </div>
+          <button class="btn btn-run" id="btnCompile">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>
+            Compile & Analyze
+          </button>
         </div>
       </section>
 
-      <!-- Right Column: Compiler Output Tabs -->
-      <section class="output-pane">
-        <nav class="tabs-nav">
-          <button class="tab-btn active" data-tab="tabAst">
-            <span class="tab-icon">🌲</span> Visual AST
-          </button>
-          <button class="tab-btn" data-tab="tabTokens">
-            <span class="tab-icon">🏷️</span> Tokens (<span id="tokenCount">0</span>)
-          </button>
-          <button class="tab-btn" data-tab="tabSemantic">
-            <span class="tab-icon">🛡️</span> Semantic Checks
-          </button>
-          <button class="tab-btn" data-tab="tabGrammar">
-            <span class="tab-icon">📐</span> CFG & LL(1) Theory
-          </button>
-        </nav>
-
-        <div class="tabs-content">
-          <!-- Tab 1: Visual AST -->
-          <div class="tab-pane active" id="tabAst">
-            <div class="ast-toolbar">
-              <span class="toolbar-label">Abstract Syntax Tree Hierarchy</span>
-              <div class="toolbar-actions">
-                <button class="btn btn-xs" id="btnToggleAstJson">View JSON</button>
-              </div>
-            </div>
-            <div class="ast-tree-container" id="astVisualTree">
-              <div class="empty-state">
-                <p>Click <strong>Compile & Analyze</strong> to generate the Abstract Syntax Tree.</p>
-              </div>
-            </div>
-            <pre class="ast-json-view hidden" id="astJsonView"><code></code></pre>
+      <!-- Right: Structured Output Panels -->
+      <section class="pane pane-output">
+        <div class="output-tabs-bar">
+          <div class="tabs-list">
+            <button class="tab-item active" data-tab="tabAst">
+              <span class="tab-label">Visual AST</span>
+            </button>
+            <button class="tab-item" data-tab="tabTokens">
+              <span class="tab-label">Tokens</span>
+              <span class="badge-count" id="tokenCountBadge">0</span>
+            </button>
+            <button class="tab-item" data-tab="tabSemantic">
+              <span class="tab-label">Semantic Check</span>
+              <span class="dot-status" id="semStatusDot"></span>
+            </button>
+            <button class="tab-item" data-tab="tabTheory">
+              <span class="tab-label">CFG Theory</span>
+            </button>
           </div>
 
-          <!-- Tab 2: Tokens Inspector -->
-          <div class="tab-pane" id="tabTokens">
-            <div class="table-container">
-              <table class="data-table" id="tokensTable">
+          <div class="tab-action-wrap" id="astActionsWrap">
+            <div class="segmented-control">
+              <button class="seg-btn active" data-ast-view="visual">Tree</button>
+              <button class="seg-btn" data-ast-view="text">Indented</button>
+              <button class="seg-btn" data-ast-view="json">JSON</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="output-content-area">
+          <!-- 1. AST Explorer Tab -->
+          <div class="tab-viewport active" id="tabAst">
+            <div class="ast-canvas" id="astVisualTree">
+              <div class="placeholder-state">
+                <div class="placeholder-icon">🌲</div>
+                <p>Run compilation to explore the interactive Abstract Syntax Tree.</p>
+              </div>
+            </div>
+            <pre class="code-view hidden" id="astTextView"><code></code></pre>
+            <pre class="code-view hidden" id="astJsonView"><code></code></pre>
+          </div>
+
+          <!-- 2. Token Stream Tab -->
+          <div class="tab-viewport" id="tabTokens">
+            <div class="table-filter-bar">
+              <input type="text" id="tokenFilterInput" class="filter-input" placeholder="Filter tokens (e.g. IDENTIFIER, WHERE)...">
+            </div>
+            <div class="table-scroll">
+              <table class="token-table">
                 <thead>
                   <tr>
-                    <th>#</th>
+                    <th style="width: 48px;">#</th>
                     <th>Token Type</th>
                     <th>Lexeme</th>
-                    <th>Semantic Value</th>
-                    <th>Line</th>
-                    <th>Col</th>
+                    <th>Value</th>
+                    <th style="width: 60px;">Line</th>
+                    <th style="width: 60px;">Col</th>
                   </tr>
                 </thead>
                 <tbody id="tokensTableBody">
                   <tr>
-                    <td colspan="6" class="text-center text-muted">No tokens generated yet.</td>
+                    <td colspan="6" class="cell-empty">No tokens generated yet.</td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
 
-          <!-- Tab 3: Semantic Analysis -->
-          <div class="tab-pane" id="tabSemantic">
-            <div class="semantic-container" id="semanticReportContainer">
-              <div class="empty-state">
-                <p>Compile a query to run contextual semantic and schema checks.</p>
+          <!-- 3. Semantic Analysis Tab -->
+          <div class="tab-viewport" id="tabSemantic">
+            <div class="semantic-content" id="semanticReportView">
+              <div class="placeholder-state">
+                <div class="placeholder-icon">🛡️</div>
+                <p>Compile a query to inspect schema verification and type safety.</p>
               </div>
             </div>
           </div>
 
-          <!-- Tab 4: Grammar & Viva Theory -->
-          <div class="tab-pane" id="tabGrammar">
-            <div class="theory-scroll">
-              <div class="theory-card">
-                <h3>Context-Free Grammar $G'$ (Transformed for Top-Down Parsing)</h3>
-                <pre class="bnf-block"><code>&lt;Query&gt;          ::= &lt;SelectClause&gt; &lt;FromClause&gt; &lt;OptWhere&gt; &lt;OptOrderBy&gt; &lt;OptSemi&gt;
+          <!-- 4. CFG & LL(1) Theory Tab -->
+          <div class="tab-viewport" id="tabTheory">
+            <div class="theory-wrapper">
+              <div class="theory-box">
+                <h4>Transformed Context-Free Grammar ($G'$)</h4>
+                <p class="theory-sub">Optimized for Deterministic Recursive-Descent Parsing (Left-Recursion Eliminated & Left-Factored):</p>
+                <pre class="grammar-snippet"><code>&lt;Query&gt;          ::= &lt;SelectClause&gt; &lt;FromClause&gt; &lt;OptWhere&gt; &lt;OptOrderBy&gt; [';']
 &lt;SelectClause&gt;   ::= 'SELECT' ( '*' | &lt;ColumnList&gt; )
 &lt;ColumnList&gt;     ::= IDENTIFIER ( ',' IDENTIFIER )*
 &lt;FromClause&gt;     ::= 'FROM' IDENTIFIER
@@ -163,14 +199,15 @@
 &lt;OrderByClause&gt;  ::= 'ORDER' 'BY' &lt;OrderByItem&gt; ( ',' &lt;OrderByItem&gt; )*
 &lt;OrderByItem&gt;    ::= IDENTIFIER [ 'ASC' | 'DESC' ]</code></pre>
               </div>
-              <div class="theory-card">
-                <h3>Operator Precedence Guarantees</h3>
-                <ul class="precedence-list">
-                  <li><strong>Level 1 (Highest):</strong> Parentheses <code>( ... )</code></li>
-                  <li><strong>Level 2:</strong> Relational Operators (<code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>)</li>
-                  <li><strong>Level 3:</strong> Conjunction (<code>AND</code>) — Left-Associative</li>
-                  <li><strong>Level 4 (Lowest):</strong> Disjunction (<code>OR</code>) — Left-Associative</li>
-                </ul>
+
+              <div class="theory-box">
+                <h4>Operator Precedence Hierarchy</h4>
+                <div class="precedence-grid">
+                  <div class="prec-item"><span class="prec-level">Priority 1 (Highest)</span><span>Parentheses <code>( ... )</code></span></div>
+                  <div class="prec-item"><span class="prec-level">Priority 2</span><span>Relational Operators (<code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>)</span></div>
+                  <div class="prec-item"><span class="prec-level">Priority 3</span><span>Conjunction (<code>AND</code>) — Left-Associative</span></div>
+                  <div class="prec-item"><span class="prec-level">Priority 4 (Lowest)</span><span>Disjunction (<code>OR</code>) — Left-Associative</span></div>
+                </div>
               </div>
             </div>
           </div>
@@ -178,18 +215,81 @@
       </section>
     </main>
 
-    <!-- Schema Catalog Drawer Modal -->
-    <div class="drawer-backdrop hidden" id="schemaDrawer">
-      <div class="drawer-content">
-        <div class="drawer-header">
-          <h2>📊 Database Schema Symbol Table</h2>
-          <button class="btn-close" id="btnCloseSchema">&times;</button>
+    <!-- Schema Catalog Drawer -->
+    <div class="modal-backdrop hidden" id="schemaModal">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <h3>Database Schema Symbol Table</h3>
+            <p>Available demonstration tables and validated column data types</p>
+          </div>
+          <button class="btn-icon-close" id="btnCloseSchema">&times;</button>
         </div>
-        <div class="drawer-body" id="schemaDrawerBody">
-          <!-- Dynamically populated tables -->
+        <div class="modal-body" id="schemaModalBody">
+          <!-- Populated dynamically -->
         </div>
       </div>
     </div>
+
+    <!-- Team Members Modal -->
+    <div class="modal-backdrop hidden" id="teamModal">
+      <div class="modal-card modal-card-sm">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <h3>Project Team Members</h3>
+            <p>3rd Year CSE Compiler Design Mini-Project</p>
+          </div>
+          <button class="btn-icon-close" id="btnCloseTeam">&times;</button>
+        </div>
+        <div class="modal-body">
+          <ul class="team-list">
+            <li class="team-member-item">
+              <div class="member-avatar">GC</div>
+              <div class="member-info">
+                <strong>Geo Cherian Mathew</strong>
+                <span>Project Lead & Compiler Architect</span>
+              </div>
+            </li>
+            <li class="team-member-item">
+              <div class="member-avatar">LT</div>
+              <div class="member-info">
+                <strong>Liya Tomy</strong>
+                <span>Documentation & Report Compilation</span>
+              </div>
+            </li>
+            <li class="team-member-item">
+              <div class="member-avatar">EW</div>
+              <div class="member-info">
+                <strong>Elkin Wilson George</strong>
+                <span>Language Specifications & Grammar Theory</span>
+              </div>
+            </li>
+            <li class="team-member-item">
+              <div class="member-avatar">JJ</div>
+              <div class="member-info">
+                <strong>Joswin Joshy</strong>
+                <span>Compiler Theory & Verification</span>
+              </div>
+            </li>
+            <li class="team-member-item">
+              <div class="member-avatar">JK</div>
+              <div class="member-info">
+                <strong>Jonathan Kuruvilla Thomas</strong>
+                <span>Presentation Slides & Positive Test Suites</span>
+              </div>
+            </li>
+            <li class="team-member-item">
+              <div class="member-avatar">JM</div>
+              <div class="member-info">
+                <strong>Justin Mathew Philip</strong>
+                <span>Diagnostics, Negative Testing & Viva Prep</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script src="/app.js"></script>

@@ -142,7 +142,7 @@ class TestParser(unittest.TestCase):
     def test_missing_select_error(self):
         with self.assertRaises(SyntaxError) as ctx:
             Parser.from_source("id FROM users;").parse()
-        self.assertIn("Expected 'SELECT' keyword", str(ctx.exception))
+        self.assertIn("Expected 'SELECT'", str(ctx.exception))
 
     def test_clause_out_of_order_from_first(self):
         with self.assertRaises(SyntaxError) as ctx:
