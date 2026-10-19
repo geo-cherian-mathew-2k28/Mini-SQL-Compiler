@@ -1,0 +1,15 @@
+{
+  "type": "SelectQuery",
+  "projections": [
+    {
+      "type": "Wildcard",
+      "value": "*"
+    }
+  ],
+  "from_table": {
+    "type": "Table",
+    "name": "customers"
+  },
+  "where": null,
+  "order_by": null
+}

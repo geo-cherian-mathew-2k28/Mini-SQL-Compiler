@@ -1,0 +1,27 @@
+{
+  "type": "SelectQuery",
+  "projections": [
+    {
+      "type": "Identifier",
+      "name": "id"
+    }
+  ],
+  "from_table": {
+    "type": "Table",
+    "name": "orders"
+  },
+  "where": {
+    "type": "BinaryExpr",
+    "operator": ">",
+    "left": {
+      "type": "Identifier",
+      "name": "amount"
+    },
+    "right": {
+      "type": "Literal",
+      "literal_type": "INTEGER",
+      "value": 100
+    }
+  },
+  "order_by": null
+}

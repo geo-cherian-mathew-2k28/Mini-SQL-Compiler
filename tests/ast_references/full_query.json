@@ -1,0 +1,40 @@
+{
+  "type": "SelectQuery",
+  "projections": [
+    {
+      "type": "Identifier",
+      "name": "name"
+    },
+    {
+      "type": "Identifier",
+      "name": "score"
+    }
+  ],
+  "from_table": {
+    "type": "Table",
+    "name": "students"
+  },
+  "where": {
+    "type": "BinaryExpr",
+    "operator": ">=",
+    "left": {
+      "type": "Identifier",
+      "name": "score"
+    },
+    "right": {
+      "type": "Literal",
+      "literal_type": "INTEGER",
+      "value": 50
+    }
+  },
+  "order_by": [
+    {
+      "type": "OrderByItem",
+      "column": {
+        "type": "Identifier",
+        "name": "score"
+      },
+      "direction": "DESC"
+    }
+  ]
+}
