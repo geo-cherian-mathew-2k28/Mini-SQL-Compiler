@@ -312,64 +312,158 @@ document.addEventListener("DOMContentLoaded", () => {
     }).join("");
   }
 
-  // Visual AST Tree Rendering
+  // Visual AST Flowchart/Tree Rendering (Matching Orthogonal Arrow Diagram Style)
   function renderVisualAst(ast) {
     astVisualTree.innerHTML = "";
-    const root = createAstNode("SelectQuery", "SelectQuery (Root)", "tag-query");
 
-    // Projections
-    const projBranch = createAstNode("Projections", "Projection Columns", "tag-proj");
+    const diagramWrapper = document.createElement("div");
+    diagramWrapper.className = "ast-diagram-card";
+
+    // 1. Root: SelectQuery (Black/Dark Node)
+    const rootNode = document.createElement("div");
+    rootNode.className = "ast-tree-node";
+
+    const rootPill = document.createElement("div");
+    rootPill.className = "ast-pill ast-pill-dark";
+    rootPill.textContent = "SelectQuery";
+    rootNode.appendChild(rootPill);
+
+    const rootSubtree = document.createElement("div");
+    rootSubtree.className = "ast-subtree";
+
+    // 2. Projections Branch (Black Node)
+    const projNode = document.createElement("div");
+    projNode.className = "ast-tree-node is-child";
+    const projPill = document.createElement("div");
+    projPill.className = "ast-pill ast-pill-dark";
+    projPill.textContent = "Projections";
+    projNode.appendChild(projPill);
+
+    const projSubtree = document.createElement("div");
+    projSubtree.className = "ast-subtree";
     (ast.projections || []).forEach(p => {
+      const pNode = document.createElement("div");
+      pNode.className = "ast-tree-node is-child";
+      const pPill = document.createElement("div");
       if (p.type === "Wildcard") {
-        projBranch.appendChild(createAstNode("Wildcard", "Wildcard (*)", "tag-val"));
+        pPill.className = "ast-pill ast-pill-blue";
+        pPill.textContent = "Wildcard (*)";
       } else {
-        projBranch.appendChild(createAstNode("Identifier", `Column: ${p.name}`, "tag-val"));
+        pPill.className = "ast-pill ast-pill-red";
+        pPill.textContent = p.name;
       }
+      pNode.appendChild(pPill);
+      projSubtree.appendChild(pNode);
     });
-    root.appendChild(projBranch);
+    projNode.appendChild(projSubtree);
+    rootSubtree.appendChild(projNode);
 
-    // From Table
-    const fromBranch = createAstNode("FromTable", `Table: ${ast.from_table.name}`, "tag-from");
-    root.appendChild(fromBranch);
+    // 3. From Clause (Black Node -> Red Pill for Table)
+    const fromNode = document.createElement("div");
+    fromNode.className = "ast-tree-node is-child";
+    const fromPill = document.createElement("div");
+    fromPill.className = "ast-pill ast-pill-dark";
+    fromPill.textContent = "FromClause";
+    fromNode.appendChild(fromPill);
 
-    // Where
+    const fromSubtree = document.createElement("div");
+    fromSubtree.className = "ast-subtree";
+    const tableNode = document.createElement("div");
+    tableNode.className = "ast-tree-node is-child";
+    const tablePill = document.createElement("div");
+    tablePill.className = "ast-pill ast-pill-red";
+    tablePill.textContent = ast.from_table.name;
+    tableNode.appendChild(tablePill);
+    fromSubtree.appendChild(tableNode);
+    fromNode.appendChild(fromSubtree);
+    rootSubtree.appendChild(fromNode);
+
+    // 4. Where Clause (Black Node -> Expression Subtree)
     if (ast.where) {
-      const whereBranch = createAstNode("WhereClause", "Condition (WHERE)", "tag-op");
-      whereBranch.appendChild(renderAstSubtree(ast.where));
-      root.appendChild(whereBranch);
+      const whereNode = document.createElement("div");
+      whereNode.className = "ast-tree-node is-child";
+      const wherePill = document.createElement("div");
+      wherePill.className = "ast-pill ast-pill-dark";
+      wherePill.textContent = "WhereClause";
+      whereNode.appendChild(wherePill);
+
+      const whereSubtree = document.createElement("div");
+      whereSubtree.className = "ast-subtree";
+      whereSubtree.appendChild(buildAstDiagramNode(ast.where));
+      whereNode.appendChild(whereSubtree);
+      rootSubtree.appendChild(whereNode);
     }
 
-    // Order By
+    // 5. Order By Clause
     if (ast.order_by && ast.order_by.length > 0) {
-      const orderBranch = createAstNode("OrderBy", "Sorting (ORDER BY)", "tag-proj");
+      const orderNode = document.createElement("div");
+      orderNode.className = "ast-tree-node is-child";
+      const orderPill = document.createElement("div");
+      orderPill.className = "ast-pill ast-pill-dark";
+      orderPill.textContent = "OrderByClause";
+      orderNode.appendChild(orderPill);
+
+      const orderSubtree = document.createElement("div");
+      orderSubtree.className = "ast-subtree";
       ast.order_by.forEach(item => {
-        orderBranch.appendChild(createAstNode("SortItem", `${item.column.name} [${item.direction}]`, "tag-val"));
+        const itemNode = document.createElement("div");
+        itemNode.className = "ast-tree-node is-child";
+        const itemPill = document.createElement("div");
+        itemPill.className = "ast-pill ast-pill-blue";
+        itemPill.textContent = `${item.column.name} ${item.direction}`;
+        itemNode.appendChild(itemPill);
+        orderSubtree.appendChild(itemNode);
       });
-      root.appendChild(orderBranch);
+      orderNode.appendChild(orderSubtree);
+      rootSubtree.appendChild(orderNode);
     }
 
-    astVisualTree.appendChild(root);
+    rootNode.appendChild(rootSubtree);
+    diagramWrapper.appendChild(rootNode);
+    astVisualTree.appendChild(diagramWrapper);
   }
 
-  function renderAstSubtree(node) {
-    if (!node) return document.createTextNode("");
+  function buildAstDiagramNode(node) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "ast-tree-node is-child";
+
+    if (!node) return wrapper;
 
     if (node.type === "BinaryExpr") {
-      const branch = createAstNode("BinaryExpr", `Operator: [${node.operator}]`, "tag-op");
-      branch.appendChild(renderAstSubtree(node.left));
-      branch.appendChild(renderAstSubtree(node.right));
-      return branch;
+      const pill = document.createElement("div");
+      pill.className = "ast-pill ast-pill-dark";
+      pill.textContent = `BinaryExpr (${node.operator})`;
+      wrapper.appendChild(pill);
+
+      const subtree = document.createElement("div");
+      subtree.className = "ast-subtree";
+      subtree.appendChild(buildAstDiagramNode(node.left));
+      subtree.appendChild(buildAstDiagramNode(node.right));
+      wrapper.appendChild(subtree);
+      return wrapper;
     }
 
     if (node.type === "Identifier") {
-      return createAstNode("Identifier", `Column: ${node.name}`, "tag-val");
+      const pill = document.createElement("div");
+      pill.className = "ast-pill ast-pill-red";
+      pill.textContent = node.name;
+      wrapper.appendChild(pill);
+      return wrapper;
     }
 
     if (node.type === "Literal") {
-      return createAstNode("Literal", `${node.literal_type}: ${node.value}`, "tag-val");
+      const pill = document.createElement("div");
+      pill.className = "ast-pill ast-pill-green";
+      pill.textContent = typeof node.value === "string" ? `'${node.value}'` : String(node.value);
+      wrapper.appendChild(pill);
+      return wrapper;
     }
 
-    return createAstNode("Node", JSON.stringify(node), "tag-val");
+    const pill = document.createElement("div");
+    pill.className = "ast-pill ast-pill-blue";
+    pill.textContent = JSON.stringify(node);
+    wrapper.appendChild(pill);
+    return wrapper;
   }
 
   function createAstNode(tag, label, tagClass) {

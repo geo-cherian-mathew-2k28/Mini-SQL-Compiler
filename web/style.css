@@ -607,53 +607,108 @@ kbd {
   overflow: auto;
 }
 
-.ast-branch {
-  margin-left: 20px;
-  border-left: 1.5px dashed var(--border-strong);
-  padding-left: 16px;
-  margin-top: 10px;
-  position: relative;
+.ast-diagram-card {
+  background-color: var(--bg-surface);
+  border: 1.5px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 36px 40px;
+  min-width: max-content;
+  box-shadow: var(--shadow-sm);
+  display: inline-block;
 }
 
-.ast-branch::before {
+.ast-tree-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 14px;
+}
+
+.ast-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 140px;
+  padding: 9px 22px;
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+  position: relative;
+  letter-spacing: -0.2px;
+  text-align: center;
+}
+
+/* Color styles matching the uploaded AST diagram */
+.ast-pill-dark {
+  background-color: #18181b;
+  color: #ffffff;
+  border: 1px solid #27272a;
+}
+[data-theme="light"] .ast-pill-dark {
+  background-color: #1e293b;
+  color: #ffffff;
+}
+
+.ast-pill-red {
+  background-color: #ff4d4f;
+  color: #ffffff;
+}
+
+.ast-pill-blue {
+  background-color: #38bdf8;
+  color: #ffffff;
+}
+
+.ast-pill-green {
+  background-color: #52c41a;
+  color: #ffffff;
+}
+
+/* Orthogonal connector branches */
+.ast-subtree {
+  position: relative;
+  margin-left: 64px;
+  padding-top: 6px;
+}
+
+/* Vertical trunk line descending from parent */
+.ast-subtree::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: -32px;
+  bottom: 22px;
+  width: 2px;
+  background-color: #64748b;
+}
+
+/* Horizontal arm extending to child */
+.ast-tree-node.is-child::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: -32px;
+  width: 30px;
+  height: 2px;
+  background-color: #64748b;
+}
+
+/* Arrowhead pointing into the child card */
+.ast-tree-node.is-child::after {
   content: "";
   position: absolute;
   top: 14px;
-  left: 0;
-  width: 12px;
-  height: 1.5px;
-  background-color: var(--border-strong);
-}
-
-.ast-card {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background-color: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  padding: 6px 14px;
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-sm);
-  font-size: 12px;
-}
-
-.ast-tag {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: var(--radius-xs);
-  text-transform: uppercase;
-}
-
-.tag-query { background: var(--accent-blue-subtle); color: var(--accent-blue); }
-.tag-proj { background: var(--accent-purple-subtle); color: var(--accent-purple); }
-.tag-from { background: var(--accent-green-subtle); color: var(--accent-green); }
-.tag-op { background: var(--accent-amber-subtle); color: var(--accent-amber); }
-.tag-val { background: var(--bg-hover); color: var(--text-primary); }
-
-.ast-label {
-  font-family: var(--font-mono);
-  color: var(--text-primary);
+  left: -4px;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 7px solid #64748b;
 }
 
 /* --------------------------------------------------------------------------
