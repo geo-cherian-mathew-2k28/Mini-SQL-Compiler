@@ -1,0 +1,44 @@
+{
+  "type": "SelectQuery",
+  "projections": [
+    {
+      "type": "Identifier",
+      "name": "id"
+    }
+  ],
+  "from_table": {
+    "type": "Table",
+    "name": "logs"
+  },
+  "where": {
+    "type": "BinaryExpr",
+    "operator": "AND",
+    "left": {
+      "type": "BinaryExpr",
+      "operator": "=",
+      "left": {
+        "type": "Identifier",
+        "name": "level"
+      },
+      "right": {
+        "type": "Literal",
+        "literal_type": "STRING",
+        "value": "ERROR"
+      }
+    },
+    "right": {
+      "type": "BinaryExpr",
+      "operator": "=",
+      "left": {
+        "type": "Identifier",
+        "name": "code"
+      },
+      "right": {
+        "type": "Literal",
+        "literal_type": "INTEGER",
+        "value": 500
+      }
+    }
+  },
+  "order_by": null
+}

@@ -1,0 +1,19 @@
+{
+  "type": "SelectQuery",
+  "projections": [
+    {
+      "type": "Identifier",
+      "name": "id"
+    },
+    {
+      "type": "Identifier",
+      "name": "name"
+    }
+  ],
+  "from_table": {
+    "type": "Table",
+    "name": "users"
+  },
+  "where": null,
+  "order_by": null
+}
