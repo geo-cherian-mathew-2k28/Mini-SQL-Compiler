@@ -95,8 +95,8 @@ class BinaryExpr(ASTNode):
 
     def pretty_tree(self, indent: int = 0) -> str:
         res = "  " * indent + f"BinaryExpr({self.operator})\n"
-        res += "  " * (indent + 1) + "├── Left:\n" + self.left.pretty_tree(indent + 2)
-        res += "  " * (indent + 1) + "└── Right:\n" + self.right.pretty_tree(indent + 2)
+        res += "  " * (indent + 1) + "|-- Left:\n" + self.left.pretty_tree(indent + 2)
+        res += "  " * (indent + 1) + "\-- Right:\n" + self.right.pretty_tree(indent + 2)
         return res
 
 
@@ -142,27 +142,27 @@ class SelectQuery(ASTNode):
         res = pad + "SelectQuery\n"
 
         # Projections
-        res += pad + "  ├── Projections:\n"
+        res += pad + "  |-- Projections:\n"
         for p in self.projections:
             res += p.pretty_tree(indent + 2)
 
         # From
-        res += pad + "  ├── From:\n"
+        res += pad + "  |-- From:\n"
         res += self.from_table.pretty_tree(indent + 2)
 
         # Where
-        res += pad + "  ├── Where:\n"
+        res += pad + "  |-- Where:\n"
         if self.where:
             res += self.where.pretty_tree(indent + 2)
         else:
-            res += pad + "    └── None\n"
+            res += pad + "    \-- None\n"
 
         # Order By
-        res += pad + "  └── OrderBy:\n"
+        res += pad + "  \-- OrderBy:\n"
         if self.order_by:
             for item in self.order_by:
                 res += item.pretty_tree(indent + 2)
         else:
-            res += pad + "    └── None\n"
+            res += pad + "    \-- None\n"
 
         return res
