@@ -158,33 +158,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderTreeByMode() {
     if (!currentCompilationData) return;
-
-    if (currentTreeMode === "parse_tree") {
-      astVisualTree.classList.remove("hidden");
-      astTextView.classList.add("hidden");
-      astJsonView.classList.add("hidden");
-      if (currentCompilationData.parse_tree) {
-        renderConcreteParseTree(currentCompilationData.parse_tree);
-      }
-    } else if (currentTreeMode === "ast") {
-      astVisualTree.classList.remove("hidden");
-      astTextView.classList.add("hidden");
-      astJsonView.classList.add("hidden");
-      if (currentCompilationData.ast) {
-        renderVisualAst(currentCompilationData.ast);
-      }
-    } else if (currentTreeMode === "text") {
-      astVisualTree.classList.add("hidden");
-      astTextView.classList.remove("hidden");
-      astJsonView.classList.add("hidden");
-      const textOutput = currentCompilationData.parse_tree_pretty || currentCompilationData.ast_pretty || "";
-      astTextView.querySelector("code").textContent = textOutput;
-    } else if (currentTreeMode === "json") {
-      astVisualTree.classList.add("hidden");
-      astTextView.classList.add("hidden");
-      astJsonView.classList.remove("hidden");
-      const jsonOutput = currentCompilationData.parse_tree || currentCompilationData.ast || {};
-      astJsonView.querySelector("code").textContent = JSON.stringify(jsonOutput, null, 2);
+    astVisualTree.classList.remove("hidden");
+    astTextView.classList.add("hidden");
+    astJsonView.classList.add("hidden");
+    if (currentCompilationData.ast) {
+      renderVisualAst(currentCompilationData.ast);
     }
   }
 
