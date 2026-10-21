@@ -1,6 +1,6 @@
 /**
  * Mini SQL Compiler Studio — Client Controller
- * Handles Theme Toggle, Gutter Sync, AST Visualizer, Token Filter, and Modals.
+ * Handles Theme Toggle, Gutter Sync, Parse Tree & AST Visualizer, Token Filter, and Modals.
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -56,34 +56,36 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   let cachedTokens = [];
+  let currentCompilationData = null;
+  let currentTreeMode = "parse_tree"; // 'parse_tree', 'ast', 'text', 'json'
 
   // =========================================================================
-  // 1. Theme Management (Dark / Light)
+  // 1. Theme Management (Dark / Light with LocalStorage Persistence)
   // =========================================================================
-  const savedTheme = localStorage.getItem("mini_sql_theme") || "dark";
+  const savedTheme = localStorage.getItem("minisql_theme") || "dark";
   setTheme(savedTheme);
 
   btnThemeToggle.addEventListener("click", () => {
-    const currentTheme = htmlRoot.getAttribute("data-theme");
-    const nextTheme = currentTheme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
+    const current = htmlRoot.getAttribute("data-theme") || "dark";
+    const next = current === "dark" ? "light" : "dark";
+    setTheme(next);
   });
 
   function setTheme(theme) {
     htmlRoot.setAttribute("data-theme", theme);
-    localStorage.setItem("mini_sql_theme", theme);
+    localStorage.setItem("minisql_theme", theme);
   }
 
   // =========================================================================
-  // 2. Editor Gutter & Input Handling
+  // 2. Editor Mechanics: Line Number Gutter & Synchronization
   // =========================================================================
   function updateLineNumbers() {
     const lines = sqlInput.value.split("\n").length;
-    let numbers = [];
-    for (let i = 1; i <= Math.max(lines, 1); i++) {
-      numbers.push(i);
+    let gutterHtml = "";
+    for (let i = 1; i <= lines; i++) {
+      gutterHtml += `<span>${i}</span>`;
     }
-    lineGutter.textContent = numbers.join("\n");
+    lineGutter.innerHTML = gutterHtml;
   }
 
   sqlInput.addEventListener("input", updateLineNumbers);
@@ -92,21 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   updateLineNumbers();
 
-  // Clear & Copy Actions
-  btnClearEditor.addEventListener("click", () => {
-    sqlInput.value = "";
-    updateLineNumbers();
-    sqlInput.focus();
-    resetDisplay();
-  });
-
-  btnCopyQuery.addEventListener("click", () => {
-    navigator.clipboard.writeText(sqlInput.value);
-    btnCopyQuery.textContent = "Copied!";
-    setTimeout(() => { btnCopyQuery.textContent = "Copy"; }, 1500);
-  });
-
-  // Ctrl + Enter shortcut
+  // Keyboard shortcut: Ctrl+Enter / Cmd+Enter runs compilation
   sqlInput.addEventListener("keydown", (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
       e.preventDefault();
@@ -114,12 +102,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Quick Query Chips
+  // Editor Actions
+  btnClearEditor.addEventListener("click", () => {
+    sqlInput.value = "";
+    updateLineNumbers();
+    resetDisplay();
+    sqlInput.focus();
+  });
+
+  btnCopyQuery.addEventListener("click", () => {
+    if (!sqlInput.value.trim()) return;
+    navigator.clipboard.writeText(sqlInput.value).then(() => {
+      const orig = btnCopyQuery.textContent;
+      btnCopyQuery.textContent = "Copied!";
+      setTimeout(() => (btnCopyQuery.textContent = orig), 1500);
+    });
+  });
+
+  // Quick Preset Chips
   chips.forEach(chip => {
     chip.addEventListener("click", () => {
       chips.forEach(c => c.classList.remove("active"));
       chip.classList.add("active");
-
       const key = chip.getAttribute("data-preset");
       if (PRESET_QUERIES[key]) {
         sqlInput.value = PRESET_QUERIES[key];
@@ -141,18 +145,48 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // AST View Switching (Tree / Indented / JSON)
+  // Tree Mode Switching (Parse Tree / AST / Indented / JSON)
   astSegBtns.forEach(btn => {
     btn.addEventListener("click", () => {
       astSegBtns.forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
 
-      const view = btn.getAttribute("data-ast-view");
-      astVisualTree.classList.toggle("hidden", view !== "visual");
-      astTextView.classList.toggle("hidden", view !== "text");
-      astJsonView.classList.toggle("hidden", view !== "json");
+      currentTreeMode = btn.getAttribute("data-tree-mode");
+      renderTreeByMode();
     });
   });
+
+  function renderTreeByMode() {
+    if (!currentCompilationData) return;
+
+    if (currentTreeMode === "parse_tree") {
+      astVisualTree.classList.remove("hidden");
+      astTextView.classList.add("hidden");
+      astJsonView.classList.add("hidden");
+      if (currentCompilationData.parse_tree) {
+        renderConcreteParseTree(currentCompilationData.parse_tree);
+      }
+    } else if (currentTreeMode === "ast") {
+      astVisualTree.classList.remove("hidden");
+      astTextView.classList.add("hidden");
+      astJsonView.classList.add("hidden");
+      if (currentCompilationData.ast) {
+        renderVisualAst(currentCompilationData.ast);
+      }
+    } else if (currentTreeMode === "text") {
+      astVisualTree.classList.add("hidden");
+      astTextView.classList.remove("hidden");
+      astJsonView.classList.add("hidden");
+      const textOutput = currentCompilationData.parse_tree_pretty || currentCompilationData.ast_pretty || "";
+      astTextView.querySelector("code").textContent = textOutput;
+    } else if (currentTreeMode === "json") {
+      astVisualTree.classList.add("hidden");
+      astTextView.classList.add("hidden");
+      astJsonView.classList.remove("hidden");
+      const jsonOutput = currentCompilationData.parse_tree || currentCompilationData.ast || {};
+      astJsonView.querySelector("code").textContent = JSON.stringify(jsonOutput, null, 2);
+    }
+  }
 
   // Token Filter Input
   tokenFilterInput.addEventListener("input", (e) => {
@@ -214,6 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ query: query })
       });
       const data = await res.json();
+      currentCompilationData = data;
       renderOutputs(data);
     } catch (err) {
       console.error("Compilation error:", err);
@@ -232,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function resetDisplay() {
     setCompilerStatus("ready", "Ready");
     diagnosticAlert.classList.add("hidden");
-    astVisualTree.innerHTML = '<div class="placeholder-state"><div class="placeholder-icon">🌲</div><p>Run compilation to explore the interactive Abstract Syntax Tree.</p></div>';
+    astVisualTree.innerHTML = '<div class="placeholder-state"><div class="placeholder-icon">🌲</div><p>Run compilation to inspect the formal Concrete Parse Tree (CST) and Abstract Syntax Tree.</p></div>';
     astTextView.querySelector("code").textContent = "";
     astJsonView.querySelector("code").textContent = "";
     tokenCountBadge.textContent = "0";
@@ -258,13 +293,11 @@ document.addEventListener("DOMContentLoaded", () => {
       diagnosticAlert.classList.add("hidden");
     }
 
-    // 3. AST
-    if (data.ast) {
-      renderVisualAst(data.ast);
-      astTextView.querySelector("code").textContent = data.ast_pretty || "";
-      astJsonView.querySelector("code").textContent = JSON.stringify(data.ast, null, 2);
+    // 3. Tree Rendering
+    if (data.parse_tree || data.ast) {
+      renderTreeByMode();
     } else {
-      astVisualTree.innerHTML = '<div class="placeholder-state"><p class="text-muted">AST generation halted due to syntax errors.</p></div>';
+      astVisualTree.innerHTML = '<div class="placeholder-state"><p class="text-muted">Parse tree generation halted due to syntax errors.</p></div>';
       astTextView.querySelector("code").textContent = "";
       astJsonView.querySelector("code").textContent = "";
     }
@@ -312,14 +345,65 @@ document.addEventListener("DOMContentLoaded", () => {
     }).join("");
   }
 
-  // Visual AST Flowchart/Tree Rendering (Matching Orthogonal Arrow Diagram Style)
+  // =========================================================================
+  // 5. Concrete Parse Tree (CST) Rendering (Non-Terminals & Terminals)
+  // =========================================================================
+  function renderConcreteParseTree(parseTree) {
+    astVisualTree.innerHTML = "";
+    const diagramWrapper = document.createElement("div");
+    diagramWrapper.className = "ast-diagram-card";
+
+    function buildParseTreeNode(node, isChild = false) {
+      const el = document.createElement("div");
+      el.className = isChild ? "ast-tree-node is-child" : "ast-tree-node";
+
+      const pill = document.createElement("div");
+      if (node.is_terminal) {
+        if (node.symbol === "EPSILON" || node.symbol === "ε") {
+          pill.className = "ast-pill ast-pill-green";
+          pill.textContent = `ε`;
+        } else if (node.symbol === "SELECT" || node.symbol === "FROM" || node.symbol === "WHERE" || node.symbol === "ORDER" || node.symbol === "BY") {
+          pill.className = "ast-pill ast-pill-blue";
+          pill.textContent = `${node.symbol}`;
+        } else if (node.symbol === "IDENTIFIER") {
+          pill.className = "ast-pill ast-pill-red";
+          pill.textContent = `${node.lexeme}`;
+        } else {
+          pill.className = "ast-pill ast-pill-green";
+          pill.textContent = `'${node.lexeme}'`;
+        }
+      } else {
+        pill.className = "ast-pill ast-pill-dark";
+        pill.textContent = node.symbol;
+      }
+      el.appendChild(pill);
+
+      if (node.children && node.children.length > 0) {
+        const subtree = document.createElement("div");
+        subtree.className = "ast-subtree";
+        node.children.forEach(child => {
+          subtree.appendChild(buildParseTreeNode(child, true));
+        });
+        el.appendChild(subtree);
+      }
+
+      return el;
+    }
+
+    diagramWrapper.appendChild(buildParseTreeNode(parseTree, false));
+    astVisualTree.appendChild(diagramWrapper);
+  }
+
+  // =========================================================================
+  // 6. Abstract Syntax Tree (AST) Rendering
+  // =========================================================================
   function renderVisualAst(ast) {
     astVisualTree.innerHTML = "";
 
     const diagramWrapper = document.createElement("div");
     diagramWrapper.className = "ast-diagram-card";
 
-    // 1. Root: SelectQuery (Black/Dark Node)
+    // 1. Root: SelectQuery (Dark Node)
     const rootNode = document.createElement("div");
     rootNode.className = "ast-tree-node";
 
@@ -331,7 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const rootSubtree = document.createElement("div");
     rootSubtree.className = "ast-subtree";
 
-    // 2. Projections Branch (Black Node)
+    // 2. Projections Branch
     const projNode = document.createElement("div");
     projNode.className = "ast-tree-node is-child";
     const projPill = document.createElement("div");
@@ -358,7 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
     projNode.appendChild(projSubtree);
     rootSubtree.appendChild(projNode);
 
-    // 3. From Clause (Black Node -> Red Pill for Table)
+    // 3. From Clause
     const fromNode = document.createElement("div");
     fromNode.className = "ast-tree-node is-child";
     const fromPill = document.createElement("div");
@@ -372,13 +456,13 @@ document.addEventListener("DOMContentLoaded", () => {
     tableNode.className = "ast-tree-node is-child";
     const tablePill = document.createElement("div");
     tablePill.className = "ast-pill ast-pill-red";
-    tablePill.textContent = ast.from_table.name;
+    tablePill.textContent = ast.from_table ? ast.from_table.name : "";
     tableNode.appendChild(tablePill);
     fromSubtree.appendChild(tableNode);
     fromNode.appendChild(fromSubtree);
     rootSubtree.appendChild(fromNode);
 
-    // 4. Where Clause (Black Node -> Expression Subtree)
+    // 4. Where Clause
     if (ast.where) {
       const whereNode = document.createElement("div");
       whereNode.className = "ast-tree-node is-child";
@@ -464,27 +548,6 @@ document.addEventListener("DOMContentLoaded", () => {
     pill.textContent = JSON.stringify(node);
     wrapper.appendChild(pill);
     return wrapper;
-  }
-
-  function createAstNode(tag, label, tagClass) {
-    const branch = document.createElement("div");
-    branch.className = "ast-branch";
-
-    const card = document.createElement("div");
-    card.className = "ast-card";
-
-    const tagEl = document.createElement("span");
-    tagEl.className = `ast-tag ${tagClass}`;
-    tagEl.textContent = tag;
-
-    const labelEl = document.createElement("span");
-    labelEl.className = "ast-label";
-    labelEl.textContent = label;
-
-    card.appendChild(tagEl);
-    card.appendChild(labelEl);
-    branch.appendChild(card);
-    return branch;
   }
 
   // Semantic Report Rendering
