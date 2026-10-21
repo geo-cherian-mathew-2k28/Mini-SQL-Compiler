@@ -84,12 +84,12 @@ def execute_query(query: str, verbose: bool = False):
         for idx, t in enumerate(result.tokens):
             print(f"  [{idx+1:02d}] {t['type']:<16} Lexeme: {t['lexeme']!r:<14} (Line {t['line']}, Col {t['column']})")
 
-    # Stage 2: Syntax & AST
-    print(f"\n--- [Stage 2: Syntax Analysis & AST] ---")
+    # Stage 2: Syntax & Parse Tree (AST)
+    print(f"\n--- [Stage 2: Syntax Analysis & Parse Tree (AST)] ---")
     if result.ast_pretty:
         print(result.ast_pretty)
     else:
-        print("  [!] AST not generated due to syntax errors.")
+        print("  [!] Parse tree / AST not generated due to syntax errors.")
 
     # Stage 3: Semantic
     print(f"--- [Stage 3: Semantic Analysis] ---")
