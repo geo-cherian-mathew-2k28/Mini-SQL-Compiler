@@ -108,7 +108,7 @@
         <div class="output-tabs-bar">
           <div class="tabs-list">
             <button class="tab-item active" data-tab="tabAst">
-              <span class="tab-label">Parse Tree (AST)</span>
+              <span class="tab-label">Parse Tree</span>
             </button>
             <button class="tab-item" data-tab="tabTokens">
               <span class="tab-label">Tokens</span>
@@ -125,9 +125,10 @@
 
           <div class="tab-action-wrap" id="astActionsWrap">
             <div class="segmented-control">
-              <button class="seg-btn active" data-ast-view="visual">Tree</button>
-              <button class="seg-btn" data-ast-view="text">Indented</button>
-              <button class="seg-btn" data-ast-view="json">JSON</button>
+              <button class="seg-btn active" data-tree-mode="parse_tree">Parse Tree (CST)</button>
+              <button class="seg-btn" data-tree-mode="ast">AST</button>
+              <button class="seg-btn" data-tree-mode="text">Indented</button>
+              <button class="seg-btn" data-tree-mode="json">JSON</button>
             </div>
           </div>
         </div>
@@ -138,7 +139,7 @@
             <div class="ast-canvas" id="astVisualTree">
               <div class="placeholder-state">
                 <div class="placeholder-icon">🌲</div>
-                <p>Run compilation to explore the interactive Parse Tree (Abstract Syntax Tree).</p>
+                <p>Run compilation to inspect the formal Concrete Parse Tree (CST) and Abstract Syntax Tree.</p>
               </div>
             </div>
             <pre class="code-view hidden" id="astTextView"><code></code></pre>

@@ -1,6 +1,6 @@
 """
 Master Compiler Orchestrator for Mini SQL.
-Connects Lexer -> Parser -> AST -> Semantic Analyzer into a unified pipeline.
+Connects Lexer -> Parser -> AST & Parse Tree -> Semantic Analyzer into a unified pipeline.
 """
 
 from dataclasses import dataclass, field
@@ -23,6 +23,8 @@ class CompilationResult:
     tokens: List[Dict[str, Any]] = field(default_factory=list)
     ast: Optional[Dict[str, Any]] = None
     ast_pretty: Optional[str] = None
+    parse_tree: Optional[Dict[str, Any]] = None
+    parse_tree_pretty: Optional[str] = None
     semantic_report: Optional[Dict[str, Any]] = None
     errors: List[Dict[str, Any]] = field(default_factory=list)
     warnings: List[str] = field(default_factory=list)
@@ -35,6 +37,8 @@ class CompilationResult:
             "tokens": self.tokens,
             "ast": self.ast,
             "ast_pretty": self.ast_pretty,
+            "parse_tree": self.parse_tree,
+            "parse_tree_pretty": self.parse_tree_pretty,
             "semantic_report": self.semantic_report,
             "errors": self.errors,
             "warnings": self.warnings,
@@ -59,7 +63,21 @@ class MiniSQLCompiler:
         clean_query = query.strip()
         errors: List[Dict[str, Any]] = []
         warnings: List[str] = []
-        token_dicts: List[Dict[str, Any]] = []
+
+        if not clean_query:
+            errors.append({
+                "stage": "Input Validation",
+                "type": "EmptyQueryError",
+                "message": "Query string is empty. Please enter a SQL statement.",
+                "line": 1,
+                "column": 1,
+            })
+            return CompilationResult(
+                success=False,
+                stage_reached="FAILED",
+                query=clean_query,
+                errors=errors,
+            )
 
         # =====================================================================
         # Phase 1: Lexical Analysis (Scanner)
@@ -69,7 +87,6 @@ class MiniSQLCompiler:
 
         try:
             raw_tokens = lexer.tokenize()
-            token_dicts = [t.to_dict() for t in raw_tokens]
         except LexicalError as le:
             errors.append({
                 "stage": "Lexical Analysis",
@@ -82,18 +99,20 @@ class MiniSQLCompiler:
                 success=False,
                 stage_reached="LEXICAL_FAILED",
                 query=clean_query,
-                tokens=token_dicts,
                 errors=errors,
             )
 
+        token_dicts = [t.to_dict() for t in raw_tokens]
+
         # =====================================================================
-        # Phase 2: Syntax Analysis & AST Construction (Parser)
+        # Phase 2: Syntax Analysis & Parse Tree / AST Construction (Parser)
         # =====================================================================
         parser = Parser(raw_tokens)
         ast: Optional[SelectQuery] = None
+        parse_tree = None
 
         try:
-            ast = parser.parse()
+            ast, parse_tree = parser.parse_with_tree()
         except SQLSyntaxError as se:
             errors.append({
                 "stage": "Syntax Analysis",
@@ -114,6 +133,8 @@ class MiniSQLCompiler:
 
         ast_dict = ast.to_dict()
         ast_pretty = ast.pretty_tree()
+        parse_tree_dict = parse_tree.to_dict() if parse_tree else None
+        parse_tree_pretty = parse_tree.pretty_tree() if parse_tree else None
 
         # =====================================================================
         # Phase 3: Semantic Analysis (Contextual Type & Symbol Validation)
@@ -140,6 +161,8 @@ class MiniSQLCompiler:
             tokens=token_dicts,
             ast=ast_dict,
             ast_pretty=ast_pretty,
+            parse_tree=parse_tree_dict,
+            parse_tree_pretty=parse_tree_pretty,
             semantic_report=report.to_dict(),
             errors=errors,
             warnings=warnings,
