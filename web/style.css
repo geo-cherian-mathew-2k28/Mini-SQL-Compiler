@@ -1061,3 +1061,133 @@ kbd {
 .hidden {
   display: none !important;
 }
+
+/* --------------------------------------------------------------------------
+   Classic Textbook Parse Tree (Circles, Ellipses & Branch Connectors)
+   -------------------------------------------------------------------------- */
+.parse-tree-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px;
+  min-width: max-content;
+}
+
+/* Branch level */
+.cst-level {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  position: relative;
+  margin-top: 24px;
+}
+
+.cst-node-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* Non-terminal node: Green outlined circle */
+.cst-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 2px solid #52c41a;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+  transition: all var(--transition-fast);
+}
+
+[data-theme="light"] .cst-circle {
+  background-color: #ffffff;
+  color: #1e293b;
+  border-color: #389e0d;
+}
+
+/* Terminal / Token node: Ellipse pill with lexeme */
+.cst-terminal-ellipse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 70px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: 2px solid #52c41a;
+  background-color: rgba(82, 196, 26, 0.12);
+  color: #52c41a;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+[data-theme="light"] .cst-terminal-ellipse {
+  background-color: #f6ffed;
+  border-color: #52c41a;
+  color: #237804;
+}
+
+/* Epsilon Terminal */
+.cst-epsilon {
+  border-style: dashed;
+  color: var(--text-muted);
+  border-color: var(--text-muted);
+  background-color: transparent;
+}
+
+/* Classical Top-Down Tree Connector Lines */
+.cst-subtree-branches {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  padding-top: 24px;
+  gap: 16px;
+}
+
+/* Branch horizontal bar */
+.cst-subtree-branches::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background-color: #52c41a;
+}
+
+/* Branch vertical drop line from parent */
+.cst-node-wrap::before {
+  content: "";
+  position: absolute;
+  top: -24px;
+  width: 2px;
+  height: 24px;
+  background-color: #52c41a;
+}
+
+/* Don't show drop line for root node */
+.cst-root-wrap::before {
+  display: none !important;
+}
+
+/* Connecting line to horizontal bar */
+.cst-has-children::after {
+  content: "";
+  position: absolute;
+  bottom: -24px;
+  width: 2px;
+  height: 24px;
+  background-color: #52c41a;
+}
