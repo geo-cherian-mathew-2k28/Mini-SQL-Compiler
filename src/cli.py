@@ -86,10 +86,10 @@ def execute_query(query: str, verbose: bool = False):
 
     # Stage 2: Syntax Analysis & Parse Tree
     print(f"\n--- [Stage 2: Syntax Analysis & Parse Tree] ---")
-    if result.parse_tree_pretty:
-        print(result.parse_tree_pretty)
-    elif result.ast_pretty:
+    if result.ast_pretty:
         print(result.ast_pretty)
+    elif result.parse_tree_pretty:
+        print(result.parse_tree_pretty)
     else:
         print("  [!] Parse tree not generated due to syntax errors.")
 
