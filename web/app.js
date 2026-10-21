@@ -350,48 +350,50 @@ document.addEventListener("DOMContentLoaded", () => {
   // =========================================================================
   function renderConcreteParseTree(parseTree) {
     astVisualTree.innerHTML = "";
-    const diagramWrapper = document.createElement("div");
-    diagramWrapper.className = "ast-diagram-card";
+    const container = document.createElement("div");
+    container.className = "parse-tree-container";
 
-    function buildParseTreeNode(node, isChild = false) {
-      const el = document.createElement("div");
-      el.className = isChild ? "ast-tree-node is-child" : "ast-tree-node";
+    function buildNodeEl(node, isRoot = false) {
+      const wrap = document.createElement("div");
+      wrap.className = isRoot ? "cst-node-wrap cst-root-wrap" : "cst-node-wrap";
 
-      const pill = document.createElement("div");
+      const hasChildren = node.children && node.children.length > 0;
+      if (hasChildren) {
+        wrap.classList.add("cst-has-children");
+      }
+
       if (node.is_terminal) {
+        const ellipse = document.createElement("div");
+        ellipse.className = "cst-terminal-ellipse";
         if (node.symbol === "EPSILON" || node.symbol === "ε") {
-          pill.className = "ast-pill ast-pill-green";
-          pill.textContent = `ε`;
-        } else if (node.symbol === "SELECT" || node.symbol === "FROM" || node.symbol === "WHERE" || node.symbol === "ORDER" || node.symbol === "BY") {
-          pill.className = "ast-pill ast-pill-blue";
-          pill.textContent = `${node.symbol}`;
-        } else if (node.symbol === "IDENTIFIER") {
-          pill.className = "ast-pill ast-pill-red";
-          pill.textContent = `${node.lexeme}`;
+          ellipse.classList.add("cst-epsilon");
+          ellipse.textContent = "ε";
         } else {
-          pill.className = "ast-pill ast-pill-green";
-          pill.textContent = `'${node.lexeme}'`;
+          const val = node.lexeme ? `'${node.lexeme}'` : node.symbol;
+          ellipse.textContent = `${node.symbol} (${val})`;
         }
+        wrap.appendChild(ellipse);
       } else {
-        pill.className = "ast-pill ast-pill-dark";
-        pill.textContent = node.symbol;
+        const circle = document.createElement("div");
+        circle.className = "cst-circle";
+        circle.textContent = node.symbol;
+        wrap.appendChild(circle);
       }
-      el.appendChild(pill);
 
-      if (node.children && node.children.length > 0) {
-        const subtree = document.createElement("div");
-        subtree.className = "ast-subtree";
+      if (hasChildren) {
+        const branchBox = document.createElement("div");
+        branchBox.className = "cst-subtree-branches";
         node.children.forEach(child => {
-          subtree.appendChild(buildParseTreeNode(child, true));
+          branchBox.appendChild(buildNodeEl(child, false));
         });
-        el.appendChild(subtree);
+        wrap.appendChild(branchBox);
       }
 
-      return el;
+      return wrap;
     }
 
-    diagramWrapper.appendChild(buildParseTreeNode(parseTree, false));
-    astVisualTree.appendChild(diagramWrapper);
+    container.appendChild(buildNodeEl(parseTree, true));
+    astVisualTree.appendChild(container);
   }
 
   // =========================================================================
