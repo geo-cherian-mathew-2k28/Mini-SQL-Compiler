@@ -72,6 +72,17 @@ cd Mini-SQL-Compiler
  
 ## Usage
  
+### Quick Launchers (One-Click)
+ 
+For rapid viva evaluation and classroom demos without manual terminal flags:
+ 
+- **Windows Batch Launcher**: Double-click or run `start_studio.bat`
+- **PowerShell Launcher**: Run `.\start_studio.ps1` (or `powershell -ExecutionPolicy Bypass -File .\start_studio.ps1`)
+ 
+Both launchers verify Python prerequisites, display an interactive welcome menu, and prompt for execution mode (`[1] Web Studio IDE` or `[2] CLI REPL`).
+ 
+### Manual Terminal Execution
+ 
 Start the web interface (opens at http://127.0.0.1:5000):
  
 ```bash
@@ -102,6 +113,8 @@ python -m unittest discover -s tests -t .
  
 ```
 Mini-SQL-Compiler/
+├── start_studio.bat  # Windows Command Prompt quick launcher
+├── start_studio.ps1  # Windows PowerShell quick launcher
 ├── run.py            # Entry point
 ├── src/
 │   ├── lexer/        # Tokens and scanner
