@@ -59,7 +59,7 @@ FROM <table>
 - Comparison operators: `=`, `!=`, `<>`, `<`, `<=`, `>`, `>=`
 - `AND` and `OR` with parentheses (`AND` binds tighter than `OR`)
 - Integer, float, and `'string'` literals
-The semantic checks use a built-in demo schema with four tables: `students`, `employees`, `orders`, and `products`.
+The semantic checks use a built-in demo schema with relational tables including `students`, `employees`, `orders`, `products`, `departments`, and `courses`.
  
 ## Installation
  
@@ -76,10 +76,8 @@ cd Mini-SQL-Compiler
  
 For rapid viva evaluation and classroom demos without manual terminal flags:
  
-- **Windows Batch Launcher**: Double-click or run `start_studio.bat`
-- **PowerShell Launcher**: Run `.\start_studio.ps1` (or `powershell -ExecutionPolicy Bypass -File .\start_studio.ps1`)
- 
-Both launchers verify Python prerequisites, display an interactive welcome menu, and prompt for execution mode (`[1] Web Studio IDE` or `[2] CLI REPL`).
+- **Interactive Studio Launcher**: Double-click `start_studio.bat` or run `.\start_studio.ps1`
+- **Automated Demonstration Runner Launcher**: Double-click `run_demo.bat` or run `.\run_demo.ps1`
  
 ### Manual Terminal Execution
  
@@ -101,6 +99,19 @@ Compile a single query:
 python run.py --cli "SELECT name, age FROM students WHERE age >= 18 ORDER BY name ASC;"
 ```
  
+### Automated Demonstration Runner (Viva & Evaluation Showcase)
+Execute a curated batch of 5 representative demonstration queries (simple projection, wildcard expansion, compound WHERE filtering, ORDER BY sorting, and syntax error diagnosis) with one single command:
+
+```bash
+python demo_runner.py
+```
+
+For detailed token classifications and pretty-printed ASTs:
+
+```bash
+python demo_runner.py --verbose
+```
+
 A reference implementation of the same grammar using Flex and Bison is in `c_lex_yacc/` (see the README in that folder).
  
 ## Running Tests
@@ -113,9 +124,12 @@ python -m unittest discover -s tests -t .
  
 ```
 Mini-SQL-Compiler/
-├── start_studio.bat  # Windows Command Prompt quick launcher
-├── start_studio.ps1  # Windows PowerShell quick launcher
-├── run.py            # Entry point
+├── start_studio.bat  # Windows Command Prompt quick launcher (Studio/CLI)
+├── start_studio.ps1  # Windows PowerShell quick launcher (Studio/CLI)
+├── run_demo.bat      # Windows Command Prompt quick demo launcher
+├── run_demo.ps1      # Windows PowerShell quick demo launcher
+├── demo_runner.py    # Automated viva demonstration showcase runner
+├── run.py            # Main application entry point
 ├── src/
 │   ├── lexer/        # Tokens and scanner
 │   ├── parser/       # Recursive-descent parser
@@ -149,6 +163,5 @@ Mini-SQL-Compiler/
 | Joswin Joshy | Core Compiler | Core compiler implementation, parser, AST, and integration (Issues #4, #5, #7, #11) |
 | Elkin Wilson George | Report | Supported SQL features documentation (Issue #2) and token classification table (Issue #6), forming Chapters 2 and 4 of the report |
 | Liya Tomy | Report | Project README and scope (Issue #1) and compiling the report draft in `docs/report/` (Issue #14) |
-| Jonathan Kuruvilla Thomas | Presentation | Valid SQL test queries for the demo (Issue #8) and presentation slide outline (Issue #13) |
+| Jonathan Kuruvilla Thomas | Presentation | Valid SQL test queries for the demo (Issue #8), demonstration runner showcase script (demo_runner.py), and presentation slide outline (Issue #13) |
 | Justin Mathew Philip | Presentation | Invalid SQL queries showing syntax errors on slides (Issue #9) and viva questions and answers preparation (Issue #13) |
- 

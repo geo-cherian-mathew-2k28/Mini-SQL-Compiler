@@ -89,6 +89,7 @@ def get_default_catalog() -> SchemaCatalog:
             ColumnDef("age", "INTEGER", nullable=False),
             ColumnDef("gpa", "FLOAT", nullable=True),
             ColumnDef("department", "STRING", nullable=False),
+            ColumnDef("department_id", "INTEGER", nullable=True),
         ],
     )
 
@@ -124,6 +125,37 @@ def get_default_catalog() -> SchemaCatalog:
             ColumnDef("title", "STRING", nullable=False),
             ColumnDef("price", "FLOAT", nullable=False),
             ColumnDef("stock", "INTEGER", nullable=False),
+        ],
+    )
+
+    # Table 5: departments
+    catalog.register_table(
+        "departments",
+        [
+            ColumnDef("id", "INTEGER", nullable=False),
+            ColumnDef("name", "STRING", nullable=False),
+            ColumnDef("building", "STRING", nullable=False),
+        ],
+    )
+
+    # Table 6: courses
+    catalog.register_table(
+        "courses",
+        [
+            ColumnDef("id", "INTEGER", nullable=False),
+            ColumnDef("title", "STRING", nullable=False),
+            ColumnDef("credits", "INTEGER", nullable=False),
+            ColumnDef("department_id", "INTEGER", nullable=False),
+        ],
+    )
+
+    # Table 7: enrollments
+    catalog.register_table(
+        "enrollments",
+        [
+            ColumnDef("student_id", "INTEGER", nullable=False),
+            ColumnDef("course_id", "INTEGER", nullable=False),
+            ColumnDef("grade", "STRING", nullable=False),
         ],
     )
 
