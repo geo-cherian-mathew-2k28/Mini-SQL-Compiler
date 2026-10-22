@@ -15,7 +15,7 @@
 | **Liya Tomy** | Project Documentation & Guidelines | #1 | `README.md` (Project overview, setup instructions, academic context) | High-level compiler front-end phases, project scope, repository governance |
 | **Elkin Wilson George** | SQL Specification & Report Lead (Part 1) | #2, #14 | `docs/sql_specification.md`, Project Report Chapters 1–3 (Introduction, Grammar Theory, Lexical Design) | Mandatory clause ordering (`SELECT -> FROM -> WHERE -> ORDER BY`), language boundaries |
 | **Joswin Joshy** | Lexical Specification & Report Lead (Part 2) | #6, #8, #14 | `docs/grammar/tokens.md`, `tests/test_valid.sql`, Project Report Chapters 4–6 (Parser Architecture, AST Design, Semantic Checks) | Regular expressions, Token classification, Lookahead disambiguation (`>=` vs `>`) |
-| **Jonathan Kuruvilla Thomas** | Test Suites & Presentation Architecture | #8, #13 | `tests/test_valid.sql`, `docs/presentation/slides_outline.md` | Positive test case design, AST structural verification, Presentation slide script |
+| **Jonathan Kuruvilla Thomas** | Test Suites & Presentation Architecture | #8, #13 | `tests/test_valid.sql`, `docs/presentation/slides_outline.md`, `demo_runner.py` | Positive test case design, AST structural verification, automated viva demonstration runner, Presentation slide script |
 | **Justin Mathew Philip** | Negative Testing & Viva Preparation | #9, #10, #12 | `tests/test_invalid.sql`, `tests/test_edge_cases.sql`, `docs/presentation/viva_questions.md` | Negative test design, Diagnostic error classification, Viva voce examination theory |
 
 ---

@@ -113,7 +113,7 @@
 
 ---
 
-## Slide 9: CLI REPL & Test Verification Protocol
+## Slide 9: CLI REPL, Demo Runner & Test Verification Protocol
 - **Interactive Multi-Line Shell (`python run.py --cli`):**
   - Prompt commands: `.help`, `.tables`, `.schema`, `.members`, `.clear`, `.exit`.
   - Multi-line query buffering until semicolon `;` terminator.
