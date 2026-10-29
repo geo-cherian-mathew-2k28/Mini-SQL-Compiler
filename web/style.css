@@ -1062,3 +1062,283 @@ kbd {
   display: none !important;
 }
 
+
+
+/* --------------------------------------------------------------------------
+   Mobile & Tablet Responsiveness
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  html, body {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-shell {
+    height: auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Stack editor and output vertically */
+  .workspace-layout {
+    display: flex;
+    flex-direction: column;
+    flex: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  .pane {
+    overflow: visible;
+    width: 100%;
+    flex: none;
+  }
+
+  .pane-editor {
+    border-right: none;
+    border-bottom: 2px solid var(--border-subtle);
+  }
+
+  .editor-wrapper {
+    min-height: 180px;
+    height: 220px;
+    max-height: 280px;
+    overflow: hidden;
+  }
+
+  .pane-output {
+    min-height: 520px;
+    overflow: visible;
+    border-top: none;
+  }
+
+  .output-content-area {
+    overflow: visible;
+    height: auto;
+    min-height: 460px;
+  }
+
+  .tab-viewport {
+    height: auto;
+    min-height: 460px;
+    overflow: visible;
+  }
+
+  .tab-viewport.active {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .code-view {
+    min-height: 380px;
+    max-height: 600px;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ast-canvas {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 18px 14px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+
+  .token-table {
+    min-width: 460px;
+  }
+
+  .modal-card {
+    max-width: 92vw;
+  }
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    padding: 0 12px;
+    height: 54px;
+    gap: 8px;
+  }
+
+  .brand-badge {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+
+  .brand-title {
+    font-size: 13px;
+  }
+
+  /* Hide long subtitle on mobile to give space to controls */
+  .brand-subtitle {
+    display: none;
+  }
+
+  .nav-controls {
+    gap: 6px;
+  }
+
+  .compiler-badge {
+    padding: 3px 8px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  .btn-subtle {
+    padding: 5px 8px;
+    font-size: 11px;
+    gap: 4px;
+  }
+
+  .icon-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+  }
+
+  /* Preset chips touch-friendly scrolling */
+  .presets-chip-bar {
+    padding: 6px 12px;
+  }
+
+  .chip-label {
+    display: none; /* Hide label on small devices to maximize chip visibility */
+  }
+
+  .chip {
+    padding: 6px 12px;
+    font-size: 11px;
+    min-height: 30px;
+  }
+
+  /* Editor action bar: full-width touch button */
+  .pane-action-bar {
+    padding: 8px 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .keybind-hint {
+    display: none; /* Keyboard shortcuts not applicable on mobile */
+  }
+
+  .btn-run {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 16px;
+    font-size: 13px;
+    min-height: 42px;
+  }
+
+  /* Output Tabs horizontal swipe */
+  .output-tabs-bar {
+    padding: 0 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .output-tabs-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tabs-list {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-shrink: 0;
+  }
+  .tabs-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-item {
+    padding: 11px 9px;
+    font-size: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .segmented-control {
+    flex-shrink: 0;
+    margin-left: 6px;
+  }
+
+  /* AST Diagram Card padding on mobile */
+  .ast-diagram-card {
+    padding: 22px 18px;
+  }
+
+  .ast-pill {
+    min-width: 120px;
+    padding: 7px 16px;
+    font-size: 12px;
+  }
+
+  .ast-subtree {
+    margin-left: 48px;
+  }
+
+  .ast-subtree::before {
+    left: -24px;
+  }
+
+  .ast-tree-node.is-child::before {
+    left: -24px;
+    width: 22px;
+  }
+
+  /* Semantic details on mobile */
+  .sem-detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    margin-bottom: 10px;
+  }
+
+  .sem-detail-label {
+    width: 100%;
+    font-size: 11px;
+  }
+
+  /* Theory Tab */
+  .theory-wrapper {
+    padding: 14px;
+  }
+
+  /* Modals on mobile */
+  .modal-backdrop {
+    padding: 10px;
+  }
+
+  .modal-card,
+  .modal-card-sm {
+    width: 100%;
+    max-width: 95vw;
+    max-height: 88vh;
+    border-radius: var(--radius-md);
+  }
+
+  .modal-header {
+    padding: 12px 16px;
+  }
+
+  .modal-body {
+    padding: 14px 16px;
+  }
+
+  .schema-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
